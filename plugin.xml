@@ -1,0 +1,7 @@
+<library path="lib/libdubins_planner">
+  <class name="dubins_planner/DubinsPlanner" type="dubins_planner::DubinsPlanner" base_class_type="project11_navigation::TaskToTaskWorkflow">
+    <description>
+      A Dubins planner using OMPL.
+    </description>
+  </class>
+</library>

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>dubins_planner</name>
+  <version>0.0.0</version>
+  <description>A project11_navigation planner for Dubins vehicles using OMPL</description>
+
+  <maintainer email="roland@ccom.unh.edu">Roland Arsenault</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>eigen</depend>
+  <depend>ompl</depend>
+  <depend>pluginlib</depend>
+  <depend>project11_navigation</depend>
+  <depend>roscpp</depend>
+  <depend>tf2</depend>
+  
+  <export>
+    <project11_navigation plugin="${prefix}/plugin.xml" />
+  </export>
+</package>
