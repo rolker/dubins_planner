@@ -268,9 +268,9 @@ bool DubinsPlanner::running()
 
       si->setStateValidityCheckingResolution(resolution*costmap->getResolution());
 
-      auto planner = std::make_shared<ompl::geometric::RRTstar>(si);
-      //auto planner = std::make_shared<ompl::geometric::CForest>(si);
-      //planner->setNumThreads(6);
+      //auto planner = std::make_shared<ompl::geometric::RRTstar>(si);
+      auto planner = std::make_shared<ompl::geometric::CForest>(si);
+      planner->setNumThreads(6);
       planner_setup_->setPlanner(planner);
 
       start_header_ = start.header;
