@@ -206,7 +206,7 @@ bool DubinsPlanner::running()
         }
         catch(const std::exception& e)
         {
-          std::cerr << e.what() << '\n';
+          ROS_WARN_STREAM(e.what());
           return !done;
         }
       }
@@ -219,7 +219,7 @@ bool DubinsPlanner::running()
         }
         catch(const std::exception& e)
         {
-          std::cerr << e.what() << '\n';
+          ROS_WARN_STREAM(e.what());
           return !done;
         }
       }
