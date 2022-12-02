@@ -261,7 +261,6 @@ bool DubinsPlanner::running()
       planner_setup_->setStartAndGoalStates(start_state, goal_state);
 
       // 1 meter is what percent of space size?
-      // todo: use diagonal
       double diagonal_size = sqrt(pow(costmap->getSizeInMetersX(),2.0) + pow(costmap->getSizeInMetersY(),2.0));
       double resolution = 1.0/diagonal_size;
       ROS_INFO_STREAM("resolution as proportion:" << resolution);
@@ -270,7 +269,10 @@ bool DubinsPlanner::running()
 
       //auto planner = std::make_shared<ompl::geometric::RRTstar>(si);
       auto planner = std::make_shared<ompl::geometric::CForest>(si);
-      planner->setNumThreads(6);
+      auto thread_count = planner->getNumThreads();
+      if (thread_count > 3)
+        thread_count -= 2;
+      planner->setNumThreads(thread_count);
       planner_setup_->setPlanner(planner);
 
       start_header_ = start.header;
