@@ -190,6 +190,11 @@ bool DubinsPlanner::running()
       if( radius <= 0.0)
         ROS_WARN_STREAM_THROTTLE(1.0, "Radius is not > zero: " << radius);
       auto ros_costmap = context_->costmap();
+      if(!ros_costmap || !ros_costmap->getLayeredCostmap())
+      {
+        ROS_ERROR_STREAM("Costmap not found for Dubins planner");
+        return false;
+      }
       auto* costmap = ros_costmap->getLayeredCostmap()->getCostmap();
 
       auto start = input_task_->message().poses[0]; 
