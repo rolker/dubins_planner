@@ -13,16 +13,16 @@ class DubinsPlanner: public project11_navigation::TaskToTaskWorkflow
 {
 public:
   void configure(std::string name, project11_navigation::Context::Ptr context) override;
-  void setGoal(const std::shared_ptr<project11_navigation::Task>& input) override;
+  void setGoal(const project11_navigation::Task::Ptr& input) override;
   bool running() override;
-  bool getResult(std::shared_ptr<project11_navigation::Task>& output) override;
+  bool getResult(project11_navigation::Task::Ptr& output) override;
 private:
   std::vector<geometry_msgs::PoseStamped> plannerThread(ompl::geometric::SimpleSetupPtr planner_setup, std_msgs::Header header, double speed);
   void publishPlan();
 
   project11_navigation::Context::Ptr context_;
-  std::shared_ptr<project11_navigation::Task> input_task_ = nullptr;
-  std::shared_ptr<project11_navigation::Task> output_task_ = nullptr;
+  project11_navigation::Task::Ptr input_task_ = nullptr;
+  project11_navigation::Task::Ptr output_task_ = nullptr;
 
   ros::Time task_update_time_;
 

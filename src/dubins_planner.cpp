@@ -97,7 +97,7 @@ void DubinsPlanner::configure(std::string name, project11_navigation::Context::P
   plan_publisher_ = nh.advertise<nav_msgs::Path>("plan", 1);
 }
 
-void DubinsPlanner::setGoal(const std::shared_ptr<project11_navigation::Task>& input)
+void DubinsPlanner::setGoal(const project11_navigation::Task::Ptr& input)
 {
   input_task_ = input;
   task_update_time_ = ros::Time();
@@ -139,7 +139,7 @@ bool DubinsPlanner::running()
           }
         if(!output_task_)
         {
-          output_task_ = input_task_->createChildTaskBefore(std::shared_ptr<project11_navigation::Task>(),output_task_type_);
+          output_task_ = input_task_->createChildTaskBefore(project11_navigation::Task::Ptr(),output_task_type_);
           input_task_->setChildID(output_task_, output_task_name_);
         }
         auto out_msg = output_task_->message();
@@ -189,18 +189,11 @@ bool DubinsPlanner::running()
       double radius = caps.getTurnRadiusAtSpeed(speed_);
       if( radius <= 0.0)
         ROS_WARN_STREAM_THROTTLE(1.0, "Radius is not > zero: " << radius);
-      auto ros_costmap = context_->costmap();
-      if(!ros_costmap || !ros_costmap->getLayeredCostmap())
-      {
-        ROS_ERROR_STREAM("Costmap not found for Dubins planner");
-        return false;
-      }
-      auto* costmap = ros_costmap->getLayeredCostmap()->getCostmap();
 
       auto start = input_task_->message().poses[0]; 
       auto goal = input_task_->message().poses[1];
 
-      std::string map_frame = ros_costmap->getGlobalFrameID();
+      std::string map_frame = context_->environment().mapFrame(); 
 
       if(start.header.frame_id != map_frame)
       {
@@ -233,23 +226,25 @@ bool DubinsPlanner::running()
       auto space = std::make_shared<ompl::base::DubinsStateSpace>(radius);
   
       ompl::base::RealVectorBounds bounds(2);
-      double minx = costmap->getOriginX();
-      double miny = costmap->getOriginY();
-      double maxx = minx + costmap->getSizeInMetersX();
-      double maxy = miny + costmap->getSizeInMetersY();
-      bounds.setLow(0, minx);
-      bounds.setLow(1, miny);
-      bounds.setHigh(0, maxx);
-      bounds.setHigh(1, maxy);
+      // \todo, replace with context envorionment bounds
+      // double minx = costmap->getOriginX();
+      // double miny = costmap->getOriginY();
+      // double maxx = minx + costmap->getSizeInMetersX();
+      // double maxy = miny + costmap->getSizeInMetersY();
+      // bounds.setLow(0, minx);
+      // bounds.setLow(1, miny);
+      // bounds.setHigh(0, maxx);
+      // bounds.setHigh(1, maxy);
       space->setBounds(bounds);
 
       planner_setup_ = std::make_shared<ompl::geometric::SimpleSetup>(space);
 
       auto si = planner_setup_->getSpaceInformation();
 
-      auto state_checker = std::make_shared<StateValidityChecker>(*costmap, si);
+      // replace with abstact p11 nav state checker
+      // auto state_checker = std::make_shared<StateValidityChecker>(*costmap, si);
 
-      planner_setup_->setStateValidityChecker(state_checker);
+      // planner_setup_->setStateValidityChecker(state_checker);
 
       si->setValidStateSamplerAllocator(allocateValidStateSampler);
 
@@ -266,11 +261,11 @@ bool DubinsPlanner::running()
       planner_setup_->setStartAndGoalStates(start_state, goal_state);
 
       // 1 meter is what percent of space size?
-      double diagonal_size = sqrt(pow(costmap->getSizeInMetersX(),2.0) + pow(costmap->getSizeInMetersY(),2.0));
-      double resolution = 1.0/diagonal_size;
-      ROS_INFO_STREAM("resolution as proportion:" << resolution);
+      // double diagonal_size = sqrt(pow(costmap->getSizeInMetersX(),2.0) + pow(costmap->getSizeInMetersY(),2.0));
+      // double resolution = 1.0/diagonal_size;
+      // ROS_INFO_STREAM("resolution as proportion:" << resolution);
 
-      si->setStateValidityCheckingResolution(resolution*costmap->getResolution());
+      // si->setStateValidityCheckingResolution(resolution*costmap->getResolution());
 
       //auto planner = std::make_shared<ompl::geometric::RRTstar>(si);
       auto planner = std::make_shared<ompl::geometric::CForest>(si);
@@ -305,7 +300,7 @@ bool DubinsPlanner::running()
   return !done;
 }
 
-bool DubinsPlanner::getResult(std::shared_ptr<project11_navigation::Task>& output)
+bool DubinsPlanner::getResult(project11_navigation::Task::Ptr& output)
 {
   if(output_task_)
   {
